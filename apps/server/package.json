@@ -1,0 +1,15 @@
+{
+  "name": "@phi/server",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "typecheck": "tsc -p ."
+  },
+  "dependencies": {
+    "@earendil-works/pi-agent-core": "1.4.0",
+    "@earendil-works/pi-ai": "1.4.0",
+    "@phi/shared": "workspace:*",
+    "fast-xml-validator": "1.4.2",
+    "typebox": "1.3.27"
+  }
+}

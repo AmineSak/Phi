@@ -1,0 +1,27 @@
+{"client":"send","text":"What is in this project?","messageId":"u1"}
+{"client":"response","messageId":"u1","status":202,"body":{"runId":"27e75469-bd18-4cb5-9440-a47a97036993"}}
+{"type":"user_message","messageId":"u1","text":"What is in this project?","queued":false,"seq":1}
+{"type":"run_start","runId":"27e75469-bd18-4cb5-9440-a47a97036993","seq":2}
+{"type":"turn_start","seq":3}
+{"type":"thinking_delta","messageId":"8e86ce43-be01-4fc0-acd2-2a5a7f51a1a1","delta":"I should look at the","seq":4}
+{"type":"thinking_delta","messageId":"8e86ce43-be01-4fc0-acd2-2a5a7f51a1a1","delta":" project files first","seq":5}
+{"type":"thinking_delta","messageId":"8e86ce43-be01-4fc0-acd2-2a5a7f51a1a1","delta":".","seq":6}
+{"type":"text_delta","messageId":"8e86ce43-be01-4fc0-acd2-2a5a7f51a1a1","delta":"Let me check","seq":7}
+{"type":"text_delta","messageId":"8e86ce43-be01-4fc0-acd2-2a5a7f51a1a1","delta":" the project","seq":8}
+{"type":"text_delta","messageId":"8e86ce43-be01-4fc0-acd2-2a5a7f51a1a1","delta":".","seq":9}
+{"type":"message_end","messageId":"8e86ce43-be01-4fc0-acd2-2a5a7f51a1a1","role":"assistant","usage":{"input":768,"output":21,"cacheRead":0,"cacheWrite":768,"costUsd":0},"seq":10}
+{"type":"tool_start","toolCallId":"tool:1792940272760:ujloafut43","name":"list_files","label":"List files","args":{},"seq":11}
+{"type":"tool_end","toolCallId":"tool:1792940272760:ujloafut43","isError":false,"summary":"main.tex","details":{"count":1},"seq":12}
+{"type":"turn_end","seq":13}
+{"type":"turn_start","seq":14}
+{"type":"text_delta","messageId":"22d9d23f-83c0-4f90-b0ef-401d959b2ead","delta":"The project has ","seq":15}
+{"type":"text_delta","messageId":"22d9d23f-83c0-4f90-b0ef-401d959b2ead","delta":"one file, `main.tex`","seq":16}
+{"type":"text_delta","messageId":"22d9d23f-83c0-4f90-b0ef-401d959b2ead","delta":". A minimal ","seq":17}
+{"type":"text_delta","messageId":"22d9d23f-83c0-4f90-b0ef-401d959b2ead","delta":"document:\n\n```la","seq":18}
+{"type":"text_delta","messageId":"22d9d23f-83c0-4f90-b0ef-401d959b2ead","delta":"tex\n\\documentclass{a","seq":19}
+{"type":"text_delta","messageId":"22d9d23f-83c0-4f90-b0ef-401d959b2ead","delta":"rticle}\n\\begin{d","seq":20}
+{"type":"text_delta","messageId":"22d9d23f-83c0-4f90-b0ef-401d959b2ead","delta":"ocument}\nHi\n\\end{doc","seq":21}
+{"type":"text_delta","messageId":"22d9d23f-83c0-4f90-b0ef-401d959b2ead","delta":"ument}\n```","seq":22}
+{"type":"message_end","messageId":"22d9d23f-83c0-4f90-b0ef-401d959b2ead","role":"assistant","usage":{"input":31,"output":33,"cacheRead":768,"cacheWrite":32,"costUsd":0},"seq":23}
+{"type":"turn_end","seq":24}
+{"type":"run_end","reason":"done","seq":25}

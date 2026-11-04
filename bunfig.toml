@@ -1,0 +1,3 @@
+# Tailwind CSS v4 for HTML imports served by Bun.serve (apps/web).
+[serve.static]
+plugins = ["bun-plugin-tailwind"]

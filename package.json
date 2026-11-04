@@ -1,15 +1,39 @@
 {
   "name": "phi",
-  "module": "index.ts",
+  "description": "A local, browser-based LaTeX editor with an AI agent that proposes reviewable edits.",
+  "license": "MIT",
+  "keywords": [
+    "latex",
+    "editor",
+    "overleaf",
+    "ai-agent",
+    "bun",
+    "codemirror"
+  ],
   "type": "module",
   "private": true,
+  "bin": {
+    "phi": "apps/cli/src/main.ts"
+  },
+  "engines": {
+    "bun": ">=1.4.3"
+  },
+  "packageManager": "bun@1.4.3",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "scripts": {
-    "typecheck": "bun check"
+    "dev": "bun --hot apps/server/src/index.ts",
+    "test": "bun test",
+    "typecheck": "bun run --filter '*' typecheck",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "devDependencies": {
-    "@types/bun": "latest"
-  },
-  "peerDependencies": {
-    "typescript": "^7"
+    "@types/bun": "1.4.3",
+    "bun-plugin-tailwind": "0.1.2",
+    "prettier": "3.9.10",
+    "typescript": "7.0.2"
   }
 }

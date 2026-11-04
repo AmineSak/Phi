@@ -1,0 +1,9 @@
+{"client":"send","text":"Hello","messageId":"u1"}
+{"client":"response","messageId":"u1","status":202,"body":{"runId":"9ff92410-0c29-4825-ab03-20f3ea267b18"}}
+{"type":"user_message","messageId":"u1","text":"Hello","queued":false,"seq":1}
+{"type":"run_start","runId":"9ff92410-0c29-4825-ab03-20f3ea267b18","seq":2}
+{"type":"turn_start","seq":3}
+{"type":"text_delta","messageId":"c95efae1-d80c-478e-9c27-2da3eaed02a6","delta":"","seq":4}
+{"type":"message_end","messageId":"c95efae1-d80c-478e-9c27-2da3eaed02a6","role":"assistant","usage":{"input":763,"output":0,"cacheRead":0,"cacheWrite":763,"costUsd":0},"seq":5}
+{"type":"turn_end","seq":6}
+{"type":"run_end","reason":"error","error":"Rate limited by provider","seq":7}

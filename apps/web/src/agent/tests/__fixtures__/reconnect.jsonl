@@ -1,0 +1,11 @@
+{"client":"send","text":"Long task","messageId":"u1"}
+{"client":"response","messageId":"u1","status":202,"body":{"runId":"25460be8-804a-41d6-b61e-91b5a980b62f"}}
+{"type":"user_message","messageId":"u1","text":"Long task","queued":false,"seq":1}
+{"type":"run_start","runId":"25460be8-804a-41d6-b61e-91b5a980b62f","seq":2}
+{"type":"turn_start","seq":3}
+{"client":"reload","lastEventId":3}
+{"type":"text_delta","messageId":"2840e1cd-ac07-4be8-b4d3-e0e73b8a7dd4","delta":"Still here a","seq":4}
+{"type":"text_delta","messageId":"2840e1cd-ac07-4be8-b4d3-e0e73b8a7dd4","delta":"fter the reload.","seq":5}
+{"type":"message_end","messageId":"2840e1cd-ac07-4be8-b4d3-e0e73b8a7dd4","role":"assistant","usage":{"input":764,"output":7,"cacheRead":0,"cacheWrite":764,"costUsd":0},"seq":6}
+{"type":"turn_end","seq":7}
+{"type":"run_end","reason":"done","seq":8}

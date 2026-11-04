@@ -1,0 +1,15 @@
+{"client":"send","text":"Read chapters/missing.tex","messageId":"u1"}
+{"client":"response","messageId":"u1","status":202,"body":{"runId":"6dbce52b-0ee9-46dd-b1c7-3ae16e3f5fd5"}}
+{"type":"user_message","messageId":"u1","text":"Read chapters/missing.tex","queued":false,"seq":1}
+{"type":"run_start","runId":"6dbce52b-0ee9-46dd-b1c7-3ae16e3f5fd5","seq":2}
+{"type":"turn_start","seq":3}
+{"type":"message_end","messageId":"4462a3da-600f-4638-8013-19b57cf63fed","role":"assistant","usage":{"input":768,"output":11,"cacheRead":0,"cacheWrite":768,"costUsd":0},"seq":4}
+{"type":"tool_start","toolCallId":"tool:1792940272788:eo7ujq2qmb4","name":"read_file","label":"Read file","args":{"path":"chapters/missing.tex"},"seq":5}
+{"type":"tool_end","toolCallId":"tool:1792940272788:eo7ujq2qmb4","isError":true,"summary":"File not found: chapters/missing.tex","details":{},"seq":6}
+{"type":"turn_end","seq":7}
+{"type":"turn_start","seq":8}
+{"type":"text_delta","messageId":"6f86eb3b-b455-466e-87a7-ff0b90937e17","delta":"That file does not e","seq":9}
+{"type":"text_delta","messageId":"6f86eb3b-b455-466e-87a7-ff0b90937e17","delta":"xist.","seq":10}
+{"type":"message_end","messageId":"6f86eb3b-b455-466e-87a7-ff0b90937e17","role":"assistant","usage":{"input":28,"output":7,"cacheRead":768,"cacheWrite":28,"costUsd":0},"seq":11}
+{"type":"turn_end","seq":12}
+{"type":"run_end","reason":"done","seq":13}

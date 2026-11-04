@@ -1,0 +1,11 @@
+{
+  "name": "@phi/cli",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "typecheck": "tsc -p ."
+  },
+  "dependencies": {
+    "@phi/shared": "workspace:*"
+  }
+}

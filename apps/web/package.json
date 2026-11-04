@@ -1,0 +1,42 @@
+{
+  "name": "@phi/web",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "typecheck": "tsc -p ."
+  },
+  "dependencies": {
+    "@base-ui/react": "1.9.0",
+    "@codemirror/autocomplete": "6.20.4",
+    "@codemirror/commands": "6.11.1",
+    "@codemirror/language": "6.13.1",
+    "@codemirror/legacy-modes": "6.5.5",
+    "@codemirror/lint": "6.9.7",
+    "@codemirror/lsp-client": "6.3.0",
+    "@codemirror/search": "6.7.2",
+    "@codemirror/state": "6.7.6",
+    "@codemirror/view": "6.43.15",
+    "@phi/shared": "workspace:*",
+    "@lezer/highlight": "1.2.5",
+    "@shadcn/react": "0.3.1",
+    "class-variance-authority": "0.7.1",
+    "cn": "0.5.0",
+    "codemirror": "6.0.2",
+    "lucide-react": "1.61.0",
+    "pdfjs-dist": "6.4.299",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "react-resizable-panels": "4.15.0",
+    "shadcn": "4.22.1",
+    "shiki": "4.5.0",
+    "streamdown": "2.7.1",
+    "tailwindcss": "4.3.3",
+    "tw-animate-css": "1.4.0",
+    "zustand": "5.0.16"
+  },
+  "devDependencies": {
+    "@happy-dom/global-registrator": "21.0.4",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0"
+  }
+}

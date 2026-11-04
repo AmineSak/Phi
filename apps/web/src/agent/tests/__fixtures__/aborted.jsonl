@@ -1,0 +1,16 @@
+{"client":"send","text":"Rewrite the whole document","messageId":"u1"}
+{"client":"response","messageId":"u1","status":202,"body":{"runId":"5c74c2a3-3678-467a-b9df-bddeb41d953f"}}
+{"type":"user_message","messageId":"u1","text":"Rewrite the whole document","queued":false,"seq":1}
+{"type":"run_start","runId":"5c74c2a3-3678-467a-b9df-bddeb41d953f","seq":2}
+{"type":"turn_start","seq":3}
+{"type":"text_delta","messageId":"f30d5d7e-ac0a-4520-849c-a0187ba0fe60","delta":"Listing file","seq":4}
+{"type":"text_delta","messageId":"f30d5d7e-ac0a-4520-849c-a0187ba0fe60","delta":"s first.","seq":5}
+{"type":"message_end","messageId":"f30d5d7e-ac0a-4520-849c-a0187ba0fe60","role":"assistant","usage":{"input":769,"output":9,"cacheRead":0,"cacheWrite":769,"costUsd":0},"seq":6}
+{"type":"tool_start","toolCallId":"tool:1792940272792:tom0yn576y","name":"list_files","label":"List files","args":{},"seq":7}
+{"type":"tool_end","toolCallId":"tool:1792940272792:tom0yn576y","isError":false,"summary":"main.tex","details":{"count":1},"seq":8}
+{"type":"turn_end","seq":9}
+{"type":"turn_start","seq":10}
+{"client":"abort"}
+{"type":"message_end","messageId":"496dc23e-5994-40a7-87d7-4ed46b444f7e","role":"assistant","usage":{"input":19,"output":1,"cacheRead":769,"cacheWrite":20,"costUsd":0},"seq":11}
+{"type":"turn_end","seq":12}
+{"type":"run_end","reason":"aborted","seq":13}

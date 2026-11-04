@@ -1,0 +1,19 @@
+{"client":"send","text":"Fix the intro.","messageId":"u1"}
+{"client":"response","messageId":"u1","status":202,"body":{"runId":"82c3afb4-fec6-4f5c-b8f4-5179f490e94c"}}
+{"type":"user_message","messageId":"u1","text":"Fix the intro.","queued":false,"seq":1}
+{"type":"run_start","runId":"82c3afb4-fec6-4f5c-b8f4-5179f490e94c","seq":2}
+{"type":"turn_start","seq":3}
+{"client":"send","text":"Also check the bibliography.","messageId":"u2"}
+{"client":"response","messageId":"u2","status":202,"body":{"queued":true}}
+{"type":"user_message","messageId":"u2","text":"Also check the bibliography.","queued":true,"seq":4}
+{"type":"text_delta","messageId":"373e492c-071d-441b-b53c-6f9de45f5baa","delta":"Here is the introduc","seq":5}
+{"type":"text_delta","messageId":"373e492c-071d-441b-b53c-6f9de45f5baa","delta":"tion fix.","seq":6}
+{"type":"message_end","messageId":"373e492c-071d-441b-b53c-6f9de45f5baa","role":"assistant","usage":{"input":766,"output":8,"cacheRead":0,"cacheWrite":766,"costUsd":0},"seq":7}
+{"type":"turn_end","seq":8}
+{"type":"turn_start","seq":9}
+{"type":"text_delta","messageId":"1bc3eda7-842e-4eec-9453-e1c5f4f43053","delta":"And the bibl","seq":10}
+{"type":"text_delta","messageId":"1bc3eda7-842e-4eec-9453-e1c5f4f43053","delta":"iography loo","seq":11}
+{"type":"text_delta","messageId":"1bc3eda7-842e-4eec-9453-e1c5f4f43053","delta":"ks fine.","seq":12}
+{"type":"message_end","messageId":"1bc3eda7-842e-4eec-9453-e1c5f4f43053","role":"assistant","usage":{"input":19,"output":8,"cacheRead":766,"cacheWrite":19,"costUsd":0},"seq":13}
+{"type":"turn_end","seq":14}
+{"type":"run_end","reason":"done","seq":15}

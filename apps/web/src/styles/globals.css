@@ -1,0 +1,161 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@import 'shadcn/tailwind.css';
+
+/* Streamdown renders the agent's markdown with Tailwind classes from its own bundle. */
+@source '../../node_modules/streamdown/dist/*.js';
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --font-sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, monospace;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-warning: var(--warning);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-muted: var(--sidebar-muted);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+/* Handbook Tables: binding-cloth rail and primary, cool near-white pages, ink rules,
+   red and ochre reserved for compile state. */
+:root {
+  --radius: 0.375rem;
+  --background: oklch(0.951 0.004 165);
+  --foreground: oklch(0.205 0.005 240);
+  --card: oklch(0.987 0.002 165);
+  --card-foreground: oklch(0.205 0.005 240);
+  --popover: oklch(0.987 0.002 165);
+  --popover-foreground: oklch(0.205 0.005 240);
+  --primary: oklch(0.39 0.055 196);
+  --primary-foreground: oklch(0.96 0.01 190);
+  --secondary: oklch(0.93 0.008 180);
+  --secondary-foreground: oklch(0.205 0.005 240);
+  --muted: oklch(0.94 0.006 170);
+  --muted-foreground: oklch(0.48 0.01 230);
+  --accent: oklch(0.925 0.014 190);
+  --accent-foreground: oklch(0.205 0.005 240);
+  --destructive: oklch(0.52 0.19 28);
+  --diff-added: oklch(0.52 0.13 150);
+  --warning: oklch(0.55 0.12 65);
+  --border: oklch(0.885 0.005 165);
+  --input: oklch(0.86 0.006 165);
+  --ring: oklch(0.5 0.07 196);
+  --syntax-command: oklch(0.42 0.075 196);
+  --syntax-math: oklch(0.44 0.06 255);
+  --syntax-punct: oklch(0.55 0.01 230);
+  --chart-1: oklch(0.646 0.222 41.116);
+  --chart-2: oklch(0.6 0.118 184.704);
+  --chart-3: oklch(0.398 0.07 227.392);
+  --chart-4: oklch(0.828 0.189 84.429);
+  --chart-5: oklch(0.769 0.188 70.08);
+  --sidebar: oklch(0.39 0.055 196);
+  --sidebar-foreground: oklch(0.96 0.012 190);
+  --sidebar-muted: oklch(0.83 0.03 190);
+  --sidebar-primary: oklch(0.96 0.012 190);
+  --sidebar-primary-foreground: oklch(0.39 0.055 196);
+  --sidebar-accent: oklch(0.45 0.058 196);
+  --sidebar-accent-foreground: oklch(0.99 0.005 190);
+  --sidebar-border: oklch(0.46 0.05 196);
+  --sidebar-ring: oklch(0.83 0.04 190);
+}
+
+.dark {
+  --background: oklch(0.17 0.006 200);
+  --foreground: oklch(0.92 0.006 170);
+  --card: oklch(0.205 0.007 200);
+  --card-foreground: oklch(0.92 0.006 170);
+  --popover: oklch(0.225 0.008 200);
+  --popover-foreground: oklch(0.92 0.006 170);
+  --primary: oklch(0.66 0.075 190);
+  --primary-foreground: oklch(0.17 0.02 196);
+  --secondary: oklch(0.26 0.008 200);
+  --secondary-foreground: oklch(0.92 0.006 170);
+  --muted: oklch(0.245 0.007 200);
+  --muted-foreground: oklch(0.7 0.01 200);
+  --accent: oklch(0.27 0.015 196);
+  --accent-foreground: oklch(0.92 0.006 170);
+  --destructive: oklch(0.69 0.16 28);
+  --diff-added: oklch(0.74 0.14 150);
+  --warning: oklch(0.78 0.12 75);
+  --border: oklch(0.3 0.008 200);
+  --input: oklch(0.34 0.008 200);
+  --ring: oklch(0.6 0.07 192);
+  --syntax-command: oklch(0.76 0.08 190);
+  --syntax-math: oklch(0.78 0.06 255);
+  --syntax-punct: oklch(0.62 0.01 200);
+  --chart-1: oklch(0.488 0.243 264.376);
+  --chart-2: oklch(0.696 0.17 162.48);
+  --chart-3: oklch(0.769 0.188 70.08);
+  --chart-4: oklch(0.627 0.265 303.9);
+  --chart-5: oklch(0.645 0.246 16.439);
+  --sidebar: oklch(0.27 0.04 196);
+  --sidebar-foreground: oklch(0.92 0.015 190);
+  --sidebar-muted: oklch(0.75 0.03 190);
+  --sidebar-primary: oklch(0.92 0.015 190);
+  --sidebar-primary-foreground: oklch(0.27 0.04 196);
+  --sidebar-accent: oklch(0.33 0.045 196);
+  --sidebar-accent-foreground: oklch(0.97 0.01 190);
+  --sidebar-border: oklch(0.34 0.04 196);
+  --sidebar-ring: oklch(0.7 0.05 190);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+  body {
+    @apply bg-background text-foreground font-sans text-sm antialiased;
+    font-variant-numeric: tabular-nums;
+    caret-color: var(--primary);
+    scrollbar-color: var(--border) transparent;
+    scrollbar-width: thin;
+  }
+  ::selection {
+    background: color-mix(in oklch, var(--primary) 22%, transparent);
+  }
+  kbd {
+    @apply font-sans;
+  }
+}

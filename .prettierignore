@@ -1,0 +1,9 @@
+node_modules
+bun.lock
+
+# Impeccable design records (generated; compared by the skill as written)
+**/.impeccable
+apps/web/DESIGN.md
+
+# Hand-aligned numbered items; Prettier would flatten them
+SPEC.md

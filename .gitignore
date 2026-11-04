@@ -32,3 +32,24 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 
 # Finder (MacOS) folder config
 .DS_Store
+
+# Phi's per-project app data (conversations, trash, settings) and LaTeX build output from
+# compiling sample-project/ or templates/
+**/.latex-agent/
+*.log
+*.pdf
+*.aux
+*.fdb_latexmk
+*.fls
+*.synctex.gz
+*.out
+*.toc
+*.bbl
+*.blg
+# ...except test fixtures, which are real logs and build files on purpose.
+!**/__fixtures__/**
+
+# AI-assistant and design-tool working files (CLAUDE.md stays tracked)
+.claude/
+skills-lock.json
+**/.impeccable/

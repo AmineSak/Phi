@@ -1,114 +1,66 @@
+# Phi
 
-Default to using Bun instead of Node.js.
+Guide for AI coding assistants working on this repo (human contributors: see
+CONTRIBUTING.md, which links back here).
 
-- Use `bun <file>` instead of `node <file>` or `ts-node <file>`
-- Use `bun test` instead of `jest` or `vitest`
-- Use `bun check` instead of `tsc --noEmit`
-- Use `bun build <file.html|file.ts|file.css>` instead of `webpack` or `esbuild`
-- Use `bun install` instead of `npm install` or `yarn install` or `pnpm install`
-- Use `bun run <script>` instead of `npm run <script>` or `yarn run <script>` or `pnpm run <script>`
-- Use `bunx <package> <command>` instead of `npx <package> <command>`
-- Bun automatically loads .env, so don't use dotenv.
+A local, browser-based LaTeX editor (like a local Overleaf) with an AI agent.
+Runs only on 127.0.0.1. Single user.
 
-## APIs
+## Stack
 
-- `Bun.serve()` supports WebSockets, HTTPS, and routes. Don't use `express`.
-- `bun:sqlite` for SQLite. Don't use `better-sqlite3`.
-- `Bun.redis` for Redis. Don't use `ioredis`.
-- `Bun.sql` for Postgres. Don't use `pg` or `postgres.js`.
-- `WebSocket` is built-in. Don't use `ws`.
-- Prefer `Bun.file` over `node:fs`'s readFile/writeFile
-- Bun.$`ls` instead of execa.
+- Runtime: Bun (>= 1.2). TypeScript everywhere. No Node-specific tooling.
+- Monorepo with Bun workspaces:
+  - `apps/server`: Bun.serve. Serves the web app via HTML import AND the API.
+  - `apps/web`: React 19, CodeMirror 6, PDF.js, zustand. UI components are shadcn/ui
+    (base-nova, Tailwind v4 via bun-plugin-tailwind); add them with the shadcn CLI.
+  - `packages/shared`: types shared by server and web (wire protocol, API types).
+- Agent engine: `@earendil-works/pi-agent-core` + `@earendil-works/pi-ai`,
+  pinned to exact version 1.4.0. Tool schemas use `typebox` (required by pi).
+- Server-to-browser streaming: our own SSE protocol (see packages/shared/src/wire.ts).
+  Do NOT use AG-UI, CopilotKit, or forward raw pi events to the browser.
 
-## Testing
+## Architecture rules
 
-Use `bun test` to run tests.
+- Product behavior is defined in SPEC.md. Read it at the start of every task and
+  cite the SPEC items you implement in your summary.
+- Each thread has an event channel (`agent/threads.ts`): `thread.publish(event)`
+  assigns seq, stores it in the ring buffer, and fans out to all subscribers.
+- Pi events are translated to wire events only in `agent/wire.ts`. Server events
+  that don't come from pi (run_start, run_end, review_resolved, status, compacted,
+  thread_updated) are published with `thread.publish()` from route or agent code.
+  Tools never publish; they report through pi's onUpdate.
+- Edit matching (`applyEdits`) lives in `packages/shared` and is used by both the
+  server (validation) and the web app (re-validation on accept).
 
-```ts#index.test.ts
-import { test, expect } from "bun:test";
+## Pi usage rules
 
-test("hello world", () => {
-  expect(1).toBe(1);
-});
-```
+- Before using any pi API, read its types in `node_modules/@earendil-works/*/dist`.
+  Do not guess signatures or event field names.
+- Tools are `AgentTool` objects: name, label, description, typebox parameters,
+  execute(toolCallId, params, signal, onUpdate). On failure, THROW; never return
+  error text as success. Put UI-only data in `details`.
+- Tests never call real LLM APIs. Use pi's faux provider
+  (`@earendil-works/pi-ai/providers/faux`) with scripted responses.
 
-## Type checking
+## Security (non-negotiable)
 
-Use `bun check` to type check the project. It reads `tsconfig.json` and reports the same errors as `tsc`.
+- Bind to 127.0.0.1 only. Every /api route checks the Origin header.
+- All file paths are resolved against PROJECT_ROOT; reject anything outside it.
+- latexmk always runs with -no-shell-escape. No generic bash/shell tool for the agent.
+- The API key lives only in the server's .env, never sent to the browser.
 
-- `bun check src/index.ts` checks one file and what it imports
-- `bun --check src/index.ts`, `bun test --check` and `bun build --check` type check first, and do nothing else if there is an error
+## Commands
 
-## Frontend
+- `bun dev`: dev server with hot reload (http://127.0.0.1:3000)
+- `bun test`: all tests
+- `bun run typecheck`: tsc across all packages
 
-Use HTML imports with `Bun.serve()`. Don't use `vite`. HTML imports fully support React, CSS, Tailwind.
+After any change: run typecheck and the tests you touched. Fix all errors before finishing.
 
-Server:
+## Conventions
 
-```ts#index.ts
-import index from "./index.html"
-
-Bun.serve({
-  routes: {
-    "/": index,
-    "/api/users/:id": {
-      GET: (req) => {
-        return new Response(JSON.stringify({ id: req.params.id }));
-      },
-    },
-  },
-  // optional websocket support
-  websocket: {
-    open: (ws) => {
-      ws.send("Hello, world!");
-    },
-    message: (ws, message) => {
-      ws.send(message);
-    },
-    close: (ws) => {
-      // handle close
-    }
-  },
-  development: {
-    hmr: true,
-    console: true,
-  }
-})
-```
-
-HTML files can import .tsx, .jsx or .js files directly and Bun's bundler will transpile & bundle automatically. `<link>` tags can point to stylesheets and Bun's CSS bundler will bundle.
-
-```html#index.html
-<html>
-  <body>
-    <h1>Hello, world!</h1>
-    <script type="module" src="./frontend.tsx"></script>
-  </body>
-</html>
-```
-
-With the following `frontend.tsx`:
-
-```tsx#frontend.tsx
-import React from "react";
-import { createRoot } from "react-dom/client";
-
-// import .css files directly and it works
-import './index.css';
-
-const root = createRoot(document.body);
-
-export default function Frontend() {
-  return <h1>Hello, world!</h1>;
-}
-
-root.render(<Frontend />);
-```
-
-Then, run index.ts
-
-```sh
-bun --hot ./index.ts
-```
-
-For more information, read the Bun API docs in `node_modules/bun-types/docs/**.mdx`.
+- No `any` unless unavoidable. Top-level imports only.
+- Tests live in a `tests/` folder next to the code they test (`services/tests/fs.test.ts`),
+  with their fixtures in `tests/__fixtures__/`; `*.test.ts`, using `bun:test`.
+- Keep functions small; don't add abstractions that have one caller.
+- Don't add dependencies without saying why in your summary.
