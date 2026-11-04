@@ -1,4 +1,12 @@
-import { rename as fsRename, lstat, mkdir, readdir, stat, writeFile } from 'node:fs/promises';
+import {
+  rename as fsRename,
+  lstat,
+  mkdir,
+  readdir,
+  stat,
+  utimes,
+  writeFile,
+} from 'node:fs/promises';
 import { dirname, join, resolve, sep } from 'node:path';
 
 import { fileKind, type FileEntry } from '@phi/shared';
@@ -107,15 +115,21 @@ export async function writeText(
 ): Promise<{ mtimeMs: number }> {
   const absolute = resolveInProject(root, path);
   return withFileLock(absolute, async () => {
-    if (baseMtimeMs !== undefined) {
-      const current = await stat(absolute).catch(() => null);
-      if (current?.mtimeMs !== baseMtimeMs) {
-        throw new ConflictError(path, current?.mtimeMs ?? null);
-      }
+    const before = await stat(absolute).catch(() => null);
+    if (baseMtimeMs !== undefined && before?.mtimeMs !== baseMtimeMs) {
+      throw new ConflictError(path, before?.mtimeMs ?? null);
     }
     await mkdir(dirname(absolute), { recursive: true });
     await Bun.write(absolute, content);
-    return { mtimeMs: (await stat(absolute)).mtimeMs };
+    let { mtimeMs } = await stat(absolute);
+    // Linux file times tick every few ms: a quick save can leave the mtime unchanged, and a
+    // stale save checked against it would then pass. Every save gets a later mtime.
+    if (before && mtimeMs <= before.mtimeMs) {
+      const later = new Date(before.mtimeMs + 1);
+      await utimes(absolute, later, later);
+      mtimeMs = (await stat(absolute)).mtimeMs;
+    }
+    return { mtimeMs };
   });
 }
 

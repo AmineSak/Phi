@@ -16,5 +16,8 @@ export function registerDom(): void {
 registerDom();
 
 export async function unregisterDom(): Promise<void> {
+  // Let React's scheduler run what an unmount or a last render queued: once the DOM is gone,
+  // that work fails with "window is not defined" between test files.
+  for (let i = 0; i < 5; i++) await new Promise((resolve) => setTimeout(resolve, 0));
   await GlobalRegistrator.unregister();
 }

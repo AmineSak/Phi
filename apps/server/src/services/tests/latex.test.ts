@@ -40,9 +40,12 @@ describe('findLatexmk', () => {
 
   test('falls back to a TeX bin folder missing from PATH, and appends it for pdflatex', () => {
     const bin = fakeTexBin();
-    expect(findLatexmk('/usr/bin:/bin', [bin])).toEqual({
+    // A PATH without latexmk. Not /usr/bin: where TeX is installed (CI), latexmk is there.
+    const system = join(root, 'system-bin');
+    mkdirSync(system);
+    expect(findLatexmk(system, [bin])).toEqual({
       latexmk: join(bin, 'latexmk'),
-      path: `/usr/bin:/bin:${bin}`,
+      path: `${system}:${bin}`,
     });
   });
 });

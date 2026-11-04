@@ -87,19 +87,23 @@ describe('listFiles', () => {
     ]);
   });
 
-  test('a folder it may not read is listed empty instead of failing the listing', async () => {
-    put('main.tex');
-    put('private/secret.tex');
-    chmodSync(join(root, 'private'), 0o000);
-    try {
-      expect(await listFiles(root)).toEqual([
-        { path: 'main.tex', isDir: false, kind: 'text' },
-        { path: 'private', isDir: true },
-      ]);
-    } finally {
-      chmodSync(join(root, 'private'), 0o755);
-    }
-  });
+  // Root reads everything, whatever the permissions say (a container running as root).
+  test.skipIf(process.getuid?.() === 0)(
+    'a folder it may not read is listed empty instead of failing the listing',
+    async () => {
+      put('main.tex');
+      put('private/secret.tex');
+      chmodSync(join(root, 'private'), 0o000);
+      try {
+        expect(await listFiles(root)).toEqual([
+          { path: 'main.tex', isDir: false, kind: 'text' },
+          { path: 'private', isDir: true },
+        ]);
+      } finally {
+        chmodSync(join(root, 'private'), 0o755);
+      }
+    },
+  );
 
   test('returns an empty list for an empty project', async () => {
     expect(await listFiles(root)).toEqual([]);
@@ -110,6 +114,19 @@ describe('readText / writeText', () => {
   test('round-trips content and reports mtime', async () => {
     const { mtimeMs } = await writeText(root, 'a.tex', 'héllo');
     expect(await readText(root, 'a.tex')).toEqual({ content: 'héllo', mtimeMs });
+  });
+
+  test('every save gets a later mtime, even on a coarse clock, so a stale save still conflicts', async () => {
+    const { mtimeMs: first } = await writeText(root, 'a.tex', 'v1');
+    // A clock that hasn't ticked since: the file's time is at or after "now" (Linux ticks every
+    // few ms; here it is simply set ahead).
+    const ahead = new Date(first + 60_000);
+    utimesSync(join(root, 'a.tex'), ahead, ahead);
+    const { mtimeMs: base } = await readText(root, 'a.tex');
+    const { mtimeMs: saved } = await writeText(root, 'a.tex', 'v2', base);
+    expect(saved).toBeGreaterThan(base);
+    await expect(writeText(root, 'a.tex', 'v3', base)).rejects.toThrow(ConflictError);
+    expect(readFileSync(join(root, 'a.tex'), 'utf8')).toBe('v2');
   });
 
   test('creates parent directories', async () => {
