@@ -53,3 +53,9 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 .claude/
 skills-lock.json
 **/.impeccable/
+
+# GCP deployment settings (may hold an OAuth client secret)
+deploy/gcp/phi.conf
+
+# Data of a local Phi container (README, "Deploy to Google Cloud")
+.phi-data/

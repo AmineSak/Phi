@@ -14,6 +14,7 @@ import { pathToFileURL } from 'node:url';
 
 import type { Server } from 'bun';
 
+import { IapError } from '../../services/iap.ts';
 import { TEXLAB_SETTINGS } from '../../services/lsp.ts';
 import { lspHandlers, PROJECT_CLOSED, type LspSocketData } from '../lsp.ts';
 
@@ -49,7 +50,7 @@ beforeEach(() => {
       close: (ws) => late!.websocket.close(ws),
     },
   });
-  handlers = lspHandlers({ port: server.port!, root: () => root, find: () => texlab });
+  handlers = lspHandlers({ access: server.port!, root: () => root, find: () => texlab });
   late = handlers;
 });
 
@@ -122,23 +123,43 @@ describe('upgrade', () => {
 
   test('a foreign Origin or Host is refused before upgrading (403)', async () => {
     for (const headers of [{ origin: 'https://evil.example' }, { origin: 'http://127.0.0.1:1' }]) {
-      const res = handlers.upgrade(req(headers), noUpgrade)!;
+      const res = (await handlers.upgrade(req(headers), noUpgrade))!;
       expect(res.status).toBe(403);
     }
     const rebinding = new Request(`http://evil.example:${server.port}/api/lsp`);
-    expect(handlers.upgrade(rebinding, noUpgrade)!.status).toBe(403);
+    expect((await handlers.upgrade(rebinding, noUpgrade))!.status).toBe(403);
     // Over a real socket the handshake fails too.
     await expect(connect({ origin: 'https://evil.example' })).rejects.toThrow();
   });
 
-  test('409 without a project, 503 without texlab, 400 when not a WebSocket', () => {
-    expect(handlers.upgrade(req({ origin: origin() }), noUpgrade)!.status).toBe(400);
+  test('deployed, the upgrade needs the IAP token like every /api route (SPEC 9.1)', async () => {
+    const deployed = lspHandlers({
+      access: {
+        port: server.port!,
+        iap: async (token) => {
+          if (token !== 'good') throw new IapError(401, 'Sign in through IAP');
+          return 'me@example.com';
+        },
+      },
+      root: () => root,
+      find: () => fakeTexlab(),
+    });
+    expect((await deployed.upgrade(req({ origin: origin() }), noUpgrade))!.status).toBe(401);
+    const signedIn = new Request(`http://127.0.0.1:${server.port}/api/lsp`, {
+      headers: { origin: origin(), 'x-goog-iap-jwt-assertion': 'good' },
+    });
+    // Past the checks: noUpgrade can't upgrade, so this is the "not a WebSocket" answer.
+    expect((await deployed.upgrade(signedIn, noUpgrade))!.status).toBe(400);
+  });
+
+  test('409 without a project, 503 without texlab, 400 when not a WebSocket', async () => {
+    expect((await handlers.upgrade(req({ origin: origin() }), noUpgrade))!.status).toBe(400);
     const saved = root;
     root = null;
-    expect(handlers.upgrade(req({}), noUpgrade)!.status).toBe(409);
+    expect((await handlers.upgrade(req({}), noUpgrade))!.status).toBe(409);
     root = saved;
-    const none = lspHandlers({ port: server.port!, root: () => root, find: () => null });
-    expect(none.upgrade(req({}), noUpgrade)!.status).toBe(503);
+    const none = lspHandlers({ access: server.port!, root: () => root, find: () => null });
+    expect((await none.upgrade(req({}), noUpgrade))!.status).toBe(503);
   });
 });
 
@@ -148,7 +169,7 @@ describe('status', () => {
     writeFileSync(versioned, '#!/bin/sh\necho "texlab 9.9.9"\n');
     chmodSync(versioned, 0o755);
     const found = lspHandlers({
-      port: 1,
+      access: 1,
       root: () => root,
       find: () => ({ binary: versioned, path: '' }),
     });
@@ -156,7 +177,7 @@ describe('status', () => {
       available: true,
       version: 'texlab 9.9.9',
     });
-    const missing = lspHandlers({ port: 1, root: () => root, find: () => null });
+    const missing = lspHandlers({ access: 1, root: () => root, find: () => null });
     expect(await (await missing.status()).json()).toEqual({ available: false, version: null });
   });
 });

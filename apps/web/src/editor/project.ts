@@ -1,5 +1,7 @@
 // Opening projects (SPEC 4.4). No React here.
 
+import type { ProjectResponse } from '@phi/shared';
+
 import { api } from '../api/client.ts';
 import { loadSettings } from '../agent/settings.ts';
 import { disconnect, startThreads } from '../agent/client.ts';
@@ -9,7 +11,7 @@ import { useEditorStore } from '../store/editor-store.ts';
 import { useProjectStore } from '../store/project-store.ts';
 import { resetReviews } from '../store/review-store.ts';
 import { startLsp, stopLsp } from './lsp.ts';
-import { loadFileList, openFile, refreshRoot, resetWorkspace } from './session.ts';
+import { loadFileList, openFile, refreshRoot, resetWorkspace, saveAll } from './session.ts';
 
 const message = (err: unknown) => (err instanceof Error ? err.message : String(err));
 
@@ -29,8 +31,8 @@ async function showProject(): Promise<void> {
 export async function startProject(): Promise<void> {
   void loadSettings();
   try {
-    const { root, recent } = await api.project();
-    useProjectStore.setState({ root, recent, loaded: true, error: null });
+    const { root, recent, managed } = await api.project();
+    useProjectStore.setState({ root, recent, managed, loaded: true, error: null });
     if (root) await showProject();
   } catch (err) {
     useProjectStore.setState({ loaded: true, error: message(err) });
@@ -38,16 +40,16 @@ export async function startProject(): Promise<void> {
 }
 
 /**
- * Opens the project at absolute `path`. The server stops the agent's work in the current one;
- * here unsaved edits are saved first, then files, tabs, the PDF and conversations reload.
- * False (with the reason in the store) when the path can't be opened.
+ * Leaves the open project for the one `open` makes the server open. The server stops the agent's
+ * work in the current one; here unsaved edits are saved first, then files, tabs, the PDF and
+ * conversations reload. False (with the reason in the store) when it can't be opened.
  */
-export async function switchProject(path: string): Promise<boolean> {
+async function changeProject(open: () => Promise<ProjectResponse>): Promise<boolean> {
   useProjectStore.setState({ switching: true, error: null });
   try {
     await resetWorkspace();
     stopLsp();
-    const { root, recent } = await api.openProject({ path: path.trim() });
+    const { root, recent } = await open();
     disconnect();
     resetReviews();
     useAgentStore.setState({ chat: initialChatState, threads: [], threadId: null, error: null });
@@ -60,4 +62,20 @@ export async function switchProject(path: string): Promise<boolean> {
     if (useProjectStore.getState().root) await showProject();
     return false;
   }
+}
+
+/** Opens the project at absolute `path` (SPEC 4.4). */
+export function switchProject(path: string): Promise<boolean> {
+  return changeProject(() => api.openProject({ path: path.trim() }));
+}
+
+/** Deployed (SPEC 9.2): creates a project from a template and opens it. */
+export function createProject(name: string, template: string): Promise<boolean> {
+  return changeProject(() => api.createProject({ name: name.trim(), template }));
+}
+
+/** Saves unsaved edits, then downloads the open project as a .zip (SPEC 9.2). */
+export async function downloadProject(): Promise<void> {
+  await saveAll();
+  window.location.assign('/api/project/archive');
 }

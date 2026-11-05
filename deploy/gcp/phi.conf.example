@@ -1,0 +1,19 @@
+# Copy to deploy/gcp/phi.conf (ignored by git) and fill in. Read by setup.sh and deploy.sh.
+
+# Your GCP project (billing enabled) and where Phi runs.
+PROJECT=my-gcp-project
+REGION=europe-west1
+ZONE=europe-west1-b
+
+# The address you'll open Phi at; you create its DNS A record after setup.
+DOMAIN=phi.example.com
+# The one Google account allowed in.
+EMAIL=you@gmail.com
+
+MACHINE_TYPE=e2-medium
+DISK_SIZE=20GB
+
+# OAuth client for the IAP sign-in screen (see README, "Prerequisites"). Leave empty to let
+# Google manage it, which only works for accounts in a Google Workspace organization.
+OAUTH_CLIENT_ID=
+OAUTH_CLIENT_SECRET=

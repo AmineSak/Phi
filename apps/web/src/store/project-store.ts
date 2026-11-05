@@ -5,6 +5,8 @@ interface ProjectStore {
   /** Absolute folder of the open project; null until one is open (SPEC 4.4). */
   root: string | null;
   recent: string[];
+  /** Deployed (SPEC 9.2): projects are picked by name and created from templates. */
+  managed: boolean;
   /** Loaded once at startup, so the app knows whether to ask for a project. */
   loaded: boolean;
   switching: boolean;
@@ -19,6 +21,7 @@ interface ProjectStore {
 export const useProjectStore = create<ProjectStore>(() => ({
   root: null,
   recent: [],
+  managed: false,
   loaded: false,
   switching: false,
   error: null,

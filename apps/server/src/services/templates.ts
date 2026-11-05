@@ -1,10 +1,10 @@
-// Project templates: each folder in <repo>/templates holds a template.json (name,
+// Project templates (SPEC 4.6, 9.2): each folder in <repo>/templates holds a template.json (name,
 // description, order) and the files a new project starts with.
 
 import { copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { dirname, join, relative } from 'node:path';
 
-export const TEMPLATES_DIR = join(import.meta.dir, '../../../templates');
+export const TEMPLATES_DIR = join(import.meta.dir, '../../../../templates');
 
 /** Describes the template; not copied into projects. */
 const MANIFEST = 'template.json';

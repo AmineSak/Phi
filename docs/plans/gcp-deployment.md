@@ -1,5 +1,7 @@
 # Deploy Phi to GCP: one Docker container on a VM, projects on a persistent disk
 
+> Implemented on the `GCP-deployment` branch. How to use it: [deploy/gcp/README.md](../../deploy/gcp/README.md).
+
 ## Context
 
 Phi runs only on the user's Mac (127.0.0.1, `phi init` / `bun dev`). The user wants to reach

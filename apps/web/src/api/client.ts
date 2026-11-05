@@ -2,6 +2,7 @@ import type {
   ApiError,
   CompileRequest,
   CompileResult,
+  CreateProjectRequest,
   CreateFileRequest,
   CreateFileResponse,
   DeleteResponse,
@@ -12,6 +13,7 @@ import type {
   LspStatusResponse,
   OpenProjectRequest,
   ProjectResponse,
+  ProjectsResponse,
   ReadFileResponse,
   RenameRequest,
   RenameResponse,
@@ -19,6 +21,7 @@ import type {
   SettingsResponse,
   SynctexBox,
   SynctexSource,
+  TemplateInfo,
   UpdateSettingsRequest,
   UploadResponse,
   WriteFileRequest,
@@ -133,6 +136,15 @@ export const api = {
   project: () => request<ProjectResponse>('/api/project'),
   openProject: (body: OpenProjectRequest) =>
     request<ProjectResponse>('/api/project', json('POST', body)),
+
+  /** Deployed (SPEC 9.2): the project folders, by name. */
+  projects: () => request<ProjectsResponse>('/api/projects'),
+
+  /** Deployed (SPEC 9.2): a new project from a template; the server opens it. */
+  createProject: (body: CreateProjectRequest) =>
+    request<ProjectResponse>('/api/projects', json('POST', body)),
+
+  templates: () => request<TemplateInfo[]>('/api/templates'),
 
   lspStatus: () => request<LspStatusResponse>('/api/lsp/status'),
 };

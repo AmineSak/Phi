@@ -16,7 +16,7 @@ import {
   TEMPLATES_DIR,
   TemplateConflictError,
   type Template,
-} from './templates.ts';
+} from '../../server/src/services/templates.ts';
 
 const USAGE = `Usage:
   phi init [path]   Create a project from a template in path (default: here) and open it

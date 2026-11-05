@@ -1,8 +1,9 @@
 import { describe, expect, spyOn, test } from 'bun:test';
 
 import { ConflictError } from '../../services/fs.ts';
+import { IapError } from '../../services/iap.ts';
 import { PathError } from '../../services/paths.ts';
-import { guard, HttpError } from '../security.ts';
+import { guard, HttpError, type Access } from '../security.ts';
 
 const ok = guard(() => Response.json({ ok: true }), 3000);
 const throwing = (err: unknown) =>
@@ -38,6 +39,51 @@ describe('origin and host checks', () => {
 
   test('rejects a foreign Host even without Origin (DNS rebinding)', async () => {
     expect((await ok(req({}, 'http://evil.example:3000/api/x'))).status).toBe(403);
+  });
+});
+
+describe('deployed (SPEC 9.1)', () => {
+  const PUBLIC = 'https://phi.example.com';
+  /** Stands in for the IAP verifier: "good" is a valid token, "other" another account. */
+  const iap = async (token: string | null) => {
+    if (token === 'good') return 'me@example.com';
+    if (token === 'other') throw new IapError(403, 'This account may not use this Phi');
+    throw new IapError(401, 'Sign in through IAP');
+  };
+  const access: Access = { port: 3000, publicOrigin: PUBLIC, iap };
+  const deployed = guard(() => Response.json({ ok: true }), access);
+  const at = (headers: Record<string, string>, url = `${PUBLIC}/api/x`) =>
+    new Request(url, { headers });
+
+  test('the public origin and host pass with a valid IAP token', async () => {
+    const res = await deployed(at({ origin: PUBLIC, 'x-goog-iap-jwt-assertion': 'good' }));
+    expect(res.status).toBe(200);
+    // Same-origin GETs carry no Origin header.
+    expect((await deployed(at({ 'x-goog-iap-jwt-assertion': 'good' }))).status).toBe(200);
+  });
+
+  test('without the token 401, another account 403, both before the handler runs', async () => {
+    let ran = false;
+    const handler = guard(() => {
+      ran = true;
+      return new Response();
+    }, access);
+    const missing = await handler(at({ origin: PUBLIC }));
+    expect(missing.status).toBe(401);
+    expect(await missing.json()).toEqual({ error: 'Sign in through IAP' });
+    expect((await handler(at({ 'x-goog-iap-jwt-assertion': 'other' }))).status).toBe(403);
+    expect(ran).toBe(false);
+  });
+
+  test('a valid token still needs the right origin and host', async () => {
+    const token = { 'x-goog-iap-jwt-assertion': 'good' };
+    expect((await deployed(at({ ...token, origin: 'https://evil.example' }))).status).toBe(403);
+    expect((await deployed(at(token, 'https://evil.example/api/x'))).status).toBe(403);
+  });
+
+  test('without PUBLIC_ORIGIN or IAP, local behavior is unchanged', async () => {
+    expect((await ok(at({ origin: PUBLIC }, 'http://127.0.0.1:3000/api/x'))).status).toBe(403);
+    expect((await ok(at({}, 'http://127.0.0.1:3000/api/x'))).status).toBe(200);
   });
 });
 

@@ -25,8 +25,10 @@ What Phi defends against:
 What Phi does not defend against:
 
 - Other users or programs on the same machine; they can reach 127.0.0.1 and read your files.
-- Exposing the port to a network (port forwarding, a reverse proxy, `0.0.0.0`). There is no
-  login. Don't do it.
+- Exposing the port to a network yourself (port forwarding, a reverse proxy, `0.0.0.0`): Phi has
+  no login of its own and refuses to listen beyond 127.0.0.1 unless Google IAP is configured.
+  To reach Phi remotely, use the IAP deployment in [deploy/gcp](deploy/gcp/README.md), where
+  every API request must carry IAP's signed token for the one allowed account.
 - What a model provider does with the text you send it. Requests go to the provider you choose
   in Settings.
 - TeX packages themselves: compiling a document runs TeX, with shell escape disabled.

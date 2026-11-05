@@ -11,7 +11,7 @@ import {
   startLanguageServer,
   type LanguageServer,
 } from '../services/lsp.ts';
-import { isAllowed } from './security.ts';
+import { refusal, type Access } from './security.ts';
 
 export interface LspSocketData {
   root: string;
@@ -22,11 +22,12 @@ export interface LspSocketData {
 export const PROJECT_CLOSED = 4000;
 
 export function lspHandlers({
-  port,
+  access,
   root,
   find = findTexlab,
 }: {
-  port: number;
+  /** The same origin (and, deployed, IAP) checks as every /api route. */
+  access: number | Access;
   /** The open project's root, or null. */
   root: () => string | null;
   find?: typeof findTexlab;
@@ -45,9 +46,9 @@ export function lspHandlers({
     },
 
     /** Upgrades GET /api/lsp after the same origin checks as every /api route. */
-    upgrade(req: Request, server: Server<LspSocketData>): Response | undefined {
-      if (!isAllowed(req, port))
-        return Response.json({ error: 'Forbidden origin' }, { status: 403 });
+    async upgrade(req: Request, server: Server<LspSocketData>): Promise<Response | undefined> {
+      const refused = await refusal(req, access);
+      if (refused) return refused;
       const open = root();
       if (!open) return Response.json({ error: 'No project is open' }, { status: 409 });
       if (!find()) return Response.json({ error: 'texlab is not installed' }, { status: 503 });

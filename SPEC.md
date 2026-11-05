@@ -103,3 +103,13 @@ Each item is a requirement. The final review checks the app against this list.
     automatically, up to 2 times, with a visible status; if it is still cut off, the
     run ends with a message saying so. Models with a placeholder output limit
     (OpenRouter's routers) get a realistic one.
+
+## 9. Deployment (optional, one user)
+9.1 Phi can run in a container behind Google IAP. Off 127.0.0.1 it refuses to
+    start without IAP; every API request and the completion WebSocket must carry
+    IAP's signed token for the one allowed account, plus the public origin.
+9.2 Deployed, projects are the folders of one server folder: picked by name,
+    created from a template in the browser, and downloadable as a .zip. No other
+    folder of the server can be opened.
+9.3 Deployed, the web app is served bundled and minified; projects and settings
+    live on a persistent disk with daily snapshots.

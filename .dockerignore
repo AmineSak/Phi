@@ -1,0 +1,24 @@
+# Only what the image needs: the app, its lockfile and the templates.
+**/node_modules
+.git
+.github
+.env
+.env.*
+!.env.example
+.claude
+**/.impeccable
+**/.latex-agent
+sample-project
+docs
+deploy/gcp
+**/tests
+*.log
+*.aux
+*.pdf
+*.synctex.gz
+*.fdb_latexmk
+*.fls
+.DS_Store
+skills-lock.json
+.vscode
+.phi-data

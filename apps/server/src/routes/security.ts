@@ -1,6 +1,7 @@
 import type { ApiError, ExistsErrorBody, FileConflictError } from '@phi/shared';
 
 import { ConflictError, ExistsError } from '../services/fs.ts';
+import { IAP_HEADER, IapError, type IapVerifier } from '../services/iap.ts';
 import { PathError } from '../services/paths.ts';
 import { RootError } from '../services/root-file.ts';
 import { UploadError } from '../services/upload.ts';
@@ -20,32 +21,56 @@ export class HttpError extends Error {
 const error = (status: number, message: string) =>
   Response.json({ error: message } satisfies ApiError, { status });
 
-function isLocal(value: string, port: number): boolean {
-  return value === `127.0.0.1:${port}` || value === `localhost:${port}`;
+/**
+ * Who may call the API. Locally just the port (127.0.0.1 and localhost on it); deployed, also
+ * the public origin, behind IAP (SPEC 9.1).
+ */
+export interface Access {
+  port: number;
+  publicOrigin?: string | null;
+  iap?: IapVerifier | null;
 }
+
+const policy = (access: number | Access): Access =>
+  typeof access === 'number' ? { port: access } : access;
 
 /**
  * The Host check blocks DNS rebinding: a page on evil.com re-pointed at 127.0.0.1 makes
  * same-origin requests, which carry no Origin header but keep Host: evil.com.
  */
-export function isAllowed(req: Request, port: number): boolean {
-  const origin = req.headers.get('origin');
-  if (
-    origin !== null &&
-    origin !== `http://127.0.0.1:${port}` &&
-    origin !== `http://localhost:${port}`
-  ) {
-    return false;
+export function isAllowed(req: Request, access: number | Access): boolean {
+  const { port, publicOrigin } = policy(access);
+  const origins = [`http://127.0.0.1:${port}`, `http://localhost:${port}`];
+  const hosts = [`127.0.0.1:${port}`, `localhost:${port}`];
+  if (publicOrigin) {
+    origins.push(publicOrigin);
+    hosts.push(new URL(publicOrigin).host);
   }
-  return isLocal(new URL(req.url).host, port);
+  const origin = req.headers.get('origin');
+  if (origin !== null && !origins.includes(origin)) return false;
+  return hosts.includes(new URL(req.url).host);
 }
 
-/** Wraps an /api handler: rejects foreign origins and turns thrown errors into JSON responses. */
-export function guard(handler: Handler, port: number): Handler {
-  return async (req) => {
-    if (!isAllowed(req, port)) return error(403, 'Forbidden origin');
+/** The origin and, when deployed, the IAP checks; a JSON error response when refused. */
+export async function refusal(req: Request, access: number | Access): Promise<Response | null> {
+  const { iap } = policy(access);
+  if (iap) {
     try {
-      return await handler(req);
+      await iap(req.headers.get(IAP_HEADER));
+    } catch (err) {
+      if (err instanceof IapError) return error(err.status, err.message);
+      throw err;
+    }
+  }
+  return isAllowed(req, access) ? null : error(403, 'Forbidden origin');
+}
+
+/** Wraps an /api handler: refuses foreign origins (and requests without IAP's token when
+ * deployed), and turns thrown errors into JSON responses. */
+export function guard(handler: Handler, access: number | Access): Handler {
+  return async (req) => {
+    try {
+      return (await refusal(req, access)) ?? (await handler(req));
     } catch (err) {
       return toResponse(err);
     }

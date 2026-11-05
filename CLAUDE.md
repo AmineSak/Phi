@@ -4,7 +4,7 @@ Guide for AI coding assistants working on this repo (human contributors: see
 CONTRIBUTING.md, which links back here).
 
 A local, browser-based LaTeX editor (like a local Overleaf) with an AI agent.
-Runs only on 127.0.0.1. Single user.
+Runs on 127.0.0.1 (or deployed for one user behind Google IAP). Single user.
 
 ## Stack
 
@@ -44,7 +44,10 @@ Runs only on 127.0.0.1. Single user.
 
 ## Security (non-negotiable)
 
-- Bind to 127.0.0.1 only. Every /api route checks the Origin header.
+- Bind to 127.0.0.1 only, unless HOST is set, which is only for the container behind Google
+  IAP (deploy/gcp): then every /api request must carry a valid IAP token (SPEC 9.1), and
+  config.ts refuses to start without IAP_AUDIENCE (or an explicit ALLOW_NO_AUTH=1).
+  Every /api route checks the Origin header.
 - All file paths are resolved against PROJECT_ROOT; reject anything outside it.
 - latexmk always runs with -no-shell-escape. No generic bash/shell tool for the agent.
 - The API key lives only in the server's .env, never sent to the browser.

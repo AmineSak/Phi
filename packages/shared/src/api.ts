@@ -319,6 +319,29 @@ export interface ProjectResponse {
   root: string | null;
   /** Absolute folders, most recent first. */
   recent: string[];
+  /**
+   * Deployed (SPEC 9.2): projects are the folders of one server folder, picked by name and
+   * created from a template in the browser, not opened by path.
+   */
+  managed: boolean;
+}
+
+/** A project template (SPEC 4.6), as GET /api/templates lists it. */
+export interface TemplateInfo {
+  id: string;
+  name: string;
+  description: string;
+}
+
+/** GET /api/projects (deployed only): the project folders, by name. */
+export interface ProjectsResponse {
+  projects: { name: string; path: string }[];
+}
+
+/** POST /api/projects body (deployed only): a new folder from a template, then opened. */
+export interface CreateProjectRequest {
+  name: string;
+  template: string;
 }
 
 /** GET /api/lsp/status: whether texlab (LaTeX completion) can run. */

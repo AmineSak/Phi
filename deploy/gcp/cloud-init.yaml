@@ -1,0 +1,55 @@
+#cloud-config
+# Container-Optimized OS runs this on every boot (its /etc is not persistent).
+# __REGION__ is filled in by setup.sh.
+
+bootcmd:
+  # The persistent disk: formatted the first time only, then mounted at /mnt/disks/data.
+  - |
+    DISK=/dev/disk/by-id/google-phi-data
+    blkid "$DISK" >/dev/null || mkfs.ext4 -m 0 -E lazy_itable_init=0,lazy_journal_init=0,discard "$DISK"
+    mkdir -p /mnt/disks/data
+    mountpoint -q /mnt/disks/data || mount -o discard,defaults "$DISK" /mnt/disks/data
+
+write_files:
+  - path: /etc/phi/run.sh
+    permissions: '0755'
+    content: |
+      #!/bin/sh
+      # Runs the image named in the instance metadata, with the environment from it.
+      set -eu
+      meta() {
+        curl -sf -H 'Metadata-Flavor: Google' \
+          "http://metadata.google.internal/computeMetadata/v1/instance/attributes/$1"
+      }
+      export HOME=/var/lib/phi
+      mkdir -p "$HOME"
+      docker-credential-gcr configure-docker --registries=__REGION__-docker.pkg.dev >/dev/null
+      IMAGE=$(meta phi-image) || { echo 'No phi-image yet: run deploy.sh'; exit 1; }
+      meta phi-env > "$HOME/phi.env"
+      docker pull "$IMAGE"
+      docker rm -f phi >/dev/null 2>&1 || true
+      exec docker run --name phi -p 3000:3000 \
+        -v /mnt/disks/data:/data --read-only --tmpfs /tmp \
+        --env-file "$HOME/phi.env" "$IMAGE"
+
+  - path: /etc/systemd/system/phi.service
+    permissions: '0644'
+    content: |
+      [Unit]
+      Description=Phi
+      Wants=network-online.target
+      After=network-online.target docker.service
+      Requires=docker.service
+
+      [Service]
+      ExecStart=/etc/phi/run.sh
+      ExecStop=/usr/bin/docker stop phi
+      Restart=always
+      RestartSec=30
+
+      [Install]
+      WantedBy=multi-user.target
+
+runcmd:
+  - systemctl daemon-reload
+  - systemctl start phi.service

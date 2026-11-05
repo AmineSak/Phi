@@ -65,6 +65,10 @@ Everything can be set in the app. Environment variables (in a `.env` file at the
 | `LLM_MODEL`                                                                    | Pins that provider's model, e.g. `openrouter/free`, `claude-sonnet-5-5`.                                                  |
 | `OPENROUTER_API_KEY`, `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `MISTRAL_API_KEY` | Provider keys; override keys saved in Settings.                                                                           |
 
+Deployment settings (see [Deploy to Google Cloud](#deploy-to-google-cloud)): `HOST`,
+`PUBLIC_ORIGIN`, `PROJECTS_DIR`, `IAP_AUDIENCE`, `ALLOWED_EMAIL`, `NODE_ENV=production`, and
+`ALLOW_NO_AUTH=1` for a container published only on 127.0.0.1.
+
 ## Where your data lives
 
 - **Project files:** your project folder, untouched apart from the edits you make or accept.
@@ -86,7 +90,39 @@ Phi is a single-user tool for your own machine:
 - latexmk always runs with `-no-shell-escape` and without project `latexmkrc` files. The agent
   has no shell tool.
 
-Don't expose the port to a network. See [SECURITY.md](SECURITY.md) to report a vulnerability.
+Don't expose the port to a network; to reach Phi from elsewhere, deploy it behind IAP as below.
+See [SECURITY.md](SECURITY.md) to report a vulnerability.
+
+## Deploy to Google Cloud
+
+Phi can also run as your personal instance on Google Cloud, reachable from any browser after a
+Google sign-in that only your account passes: one VM running the Phi container, your projects
+on a persistent disk with daily snapshots, an HTTPS load balancer with Identity-Aware Proxy
+(IAP) in front. Roughly $45–50 a month.
+
+```sh
+cp deploy/gcp/phi.conf.example deploy/gcp/phi.conf   # project, domain, your email…
+deploy/gcp/setup.sh                                   # once: VM, disk, load balancer, IAP
+deploy/gcp/deploy.sh                                  # build the image and start it
+```
+
+The full guide, with the prerequisites (a domain and an OAuth client), updates, rollback,
+backups and costs, is in [deploy/gcp/README.md](deploy/gcp/README.md).
+
+Deployed, projects live in one folder on the server: you create them from a template in the
+browser, and **Download as .zip** in the project menu gets one back. Every API request must
+carry IAP's signed header for your account, checked by Phi itself.
+
+To try the container on your machine first (Docker, about 2.3 GB with TeX Live):
+
+```sh
+docker build -t phi .
+docker run --rm -p 127.0.0.1:3000:3000 -v "$PWD/.phi-data:/data" \
+  -e ALLOW_NO_AUTH=1 -e PUBLIC_ORIGIN=http://localhost:3000 phi
+```
+
+`ALLOW_NO_AUTH=1` is only for this: without IAP, Phi has no login, so the port must stay on
+127.0.0.1.
 
 ## Development
 

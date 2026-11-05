@@ -10,7 +10,12 @@ import { EditorPane } from './components/Editor/EditorPane.tsx';
 import { EntriesTable } from './components/EntriesTable.tsx';
 import { FileTree } from './components/FileTree.tsx';
 import { PdfViewer } from './components/PdfViewer.tsx';
-import { OpenFolderForm, RecentProjects } from './components/Project/ProjectPicker.tsx';
+import {
+  ManagedProjects,
+  NewProjectForm,
+  OpenFolderForm,
+  RecentProjects,
+} from './components/Project/ProjectPicker.tsx';
 import { SettingsDialog } from './components/Settings/SettingsDialog.tsx';
 import {
   Empty,
@@ -83,8 +88,23 @@ function MobileLayout() {
   );
 }
 
-/** Before any project is open (SPEC 4.4): ask for one. */
+/** Before any project is open (SPEC 4.4): ask for one. Deployed, pick or create one (9.2). */
 function NoProject() {
+  const managed = useProjectStore((s) => s.managed);
+  if (managed) {
+    return (
+      <Empty className="flex-1">
+        <EmptyHeader>
+          <EmptyTitle>Start a project</EmptyTitle>
+          <EmptyDescription>Create one from a template, or open one of yours.</EmptyDescription>
+        </EmptyHeader>
+        <EmptyContent className="w-full max-w-lg items-stretch text-left">
+          <NewProjectForm />
+          <ManagedProjects />
+        </EmptyContent>
+      </Empty>
+    );
+  }
   return (
     <Empty className="flex-1">
       <EmptyHeader>

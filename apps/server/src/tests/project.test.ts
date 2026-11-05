@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, expect, test } from 'bun:test';
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
@@ -7,7 +7,7 @@ import { fauxAssistantMessage } from '@earendil-works/pi-ai/providers/faux';
 import type { FileEntry, WireEvent } from '@phi/shared';
 
 import { createLlm, type Llm } from '../agent/llm.ts';
-import { createProjects, type Projects } from '../project.ts';
+import { checkProjectPath, createProjects, type Projects } from '../project.ts';
 import { createSettingsStore, type SettingsStore } from '../services/settings.ts';
 
 let dir: string;
@@ -70,6 +70,27 @@ test('onSwitch runs when another folder opens (the language servers close), not 
   expect(switches).toBe(1);
   await expect(watched.open(join(dir, 'missing'))).rejects.toThrow();
   expect(switches).toBe(1);
+});
+
+test('deployed, only folders directly inside PROJECTS_DIR can be opened (SPEC 9.2)', async () => {
+  // dir holds the projects a and b; an outside folder and a link leading out of it.
+  const outside = mkdtempSync(join(tmpdir(), 'projects-outside-'));
+  symlinkSync(outside, join(dir, 'escape'));
+  mkdirSync(join(a, 'nested'));
+  try {
+    expect(await checkProjectPath(b, dir)).toBe(b);
+    for (const bad of [outside, join(dir, 'escape'), join(a, 'nested'), dir, `${dir}/a/..`, '/']) {
+      await expect(checkProjectPath(bad, dir)).rejects.toThrow();
+    }
+    const managed = createProjects({ initialRoot: a, llm, settings, projectsDir: dir });
+    expect(managed.projectsDir).toBe(dir);
+    await expect(managed.open(outside)).rejects.toThrow('is not one of the projects');
+    expect(managed.root()).toBe(a);
+    await managed.open(b);
+    expect(managed.root()).toBe(b);
+  } finally {
+    rmSync(outside, { recursive: true, force: true });
+  }
 });
 
 test('switching stops the running agent, saves it, and starts with fresh threads', async () => {
